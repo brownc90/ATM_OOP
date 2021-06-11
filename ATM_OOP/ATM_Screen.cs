@@ -28,6 +28,7 @@ namespace ATM_OOP
     {
 
         public static string InvalidInputStr = "That is not a valid input";
+        public const int MENU_BOX_WIDTH = 30;
 
         public static void ShowWelcome()
         {
@@ -76,6 +77,27 @@ namespace ATM_OOP
                         + "|                              |\n"
                         + " ------------------------------\n"
                         + "What would you like to do? ");
+        }
+
+        public static void ShowDepMenu(Customer cust)
+        {
+            // Declare local variables
+            string acctLine;
+
+            Console.Clear();
+            Console.Write(" ------------------------------\n"
+                        + "| Your Accounts:               |\n"
+                        + "|                              |\n");
+
+            for (int i = 0; i < cust.CustAccts.Count; i++)
+            {
+                acctLine = (i+1).ToString() + ". " + cust.CustAccts[i].AccountName;
+                Console.Write("|" + acctLine.PadRight(MENU_BOX_WIDTH) + "|\n");
+            }
+
+            Console.Write("|                              |\n"
+                        + " ------------------------------\n");
+//                        + "Select an account for deposit: ");
         }
 
         public static void PrintMessage(string msg, bool isError)

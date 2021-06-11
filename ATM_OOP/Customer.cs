@@ -15,6 +15,8 @@ namespace ATM_OOP
         public bool IsActive { get; set; }
         public List<Account> CustAccts;
 
+        // TO DO: Add constructor class to initialize new customers w single account
+
         public static decimal CalcTotalBal(Customer cust)
         {
             decimal total = 0m;

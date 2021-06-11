@@ -38,13 +38,16 @@ namespace ATM_OOP
             // Declare local variables
             int value = 0;        // 0 is default because there will never be an option 0 on a menu
             bool valid = false;
-             
+
             // TO DO: allow for hidden input function to feed into this one
             // pass empty string into prompt input, and ReadLine into user input
+//            do
+//            {
             Console.Write(input);
             valid = Int32.TryParse(Console.ReadLine(), out value);
             if (!valid)
-                ATM_Screen.PrintMessage("That is not a valid input", true);
+                ATM_Screen.PrintMessage(ATM_Screen.InvalidInputStr, true);
+//            } while (!valid);
 
             return value;
         }

@@ -9,7 +9,7 @@ namespace ATM_OOP
         // Declare local variables
         private static List<Customer> customerList;
         private static Customer currentCustomer;
-        private static Customer tryCustomer;
+//        private static Customer tryCustomer;
         private const int LOGIN_LIMIT = 3;
         
         // Build customer base
@@ -22,9 +22,9 @@ namespace ATM_OOP
                                 CardNo = "12345", Pin = "4321", IsActive = true,
                                 CustAccts = new List<Account>
                                 {
-                                    new Account() { Balance = 0m },
-                                    new Account() { Balance = 150m },
-                                    new Account() { Balance = 1157.27m }
+                                    new Account() { AccountName = "Checking", Balance = 0m },
+                                    new Account() { AccountName = "Savings", Balance = 150m },
+                                    new Account() { AccountName = "Custom1", Balance = 1157.27m }
                                 }
                 }
             };
@@ -62,7 +62,7 @@ namespace ATM_OOP
                                     break;
                                 // Option 2. Make Deposit
                                 case "2":
-                                    Deposit();
+                                    MakeDeposit(currentCustomer);
 
                                     break;
                                 // Option 3. Make Withdrawal
@@ -108,6 +108,7 @@ namespace ATM_OOP
         public void CheckCredentials()
         {
             // Declare local variables
+            Customer tryCustomer;
             string cardInput, pinInput;
             // TO DO: What is difference between below bools, and are they necessary?
             bool cardRecognized;
@@ -218,9 +219,28 @@ namespace ATM_OOP
                                                     Customer.CalcTotalBal(cust)), false);
         }
 
-        public void MakeDeposit()
+        public void MakeDeposit(Customer cust)
         {
+            // Declare local variables
+            Account depAccount;
+            int userChoice;
 
+            do
+            {
+                depAccount = new Account();
+
+                ATM_Screen.ShowDepMenu(cust);
+
+                userChoice = Utility.ValidateIntInput("Select an account for deposit: ");
+
+                if (userChoice != 0)
+                    depAccount = cust.CustAccts[userChoice-1];
+
+            } while (false);
+
+            // Check work thus far
+            Console.WriteLine(depAccount.AccountName);
+            Console.ReadLine();
         }
     }
 }
