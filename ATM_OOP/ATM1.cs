@@ -9,7 +9,8 @@ namespace ATM_OOP
         // Declare local variables
         private static List<Customer> customerList;
         private static Customer currentCustomer;
-//        private static Customer tryCustomer;
+        //        private static Customer tryCustomer;
+        private static decimal transactionAmt;
         private const int LOGIN_LIMIT = 3;
         
         // Build customer base
@@ -224,23 +225,36 @@ namespace ATM_OOP
             // Declare local variables
             Account depAccount;
             int userChoice;
+            bool acctValid;
 
             do
             {
+                acctValid = false;
                 depAccount = new Account();
+                transactionAmt = 0m;
 
                 ATM_Screen.ShowDepMenu(cust);
 
                 userChoice = Utility.ValidateIntInput("Select an account for deposit: ");
 
-                if (userChoice != 0)
-                    depAccount = cust.CustAccts[userChoice-1];
+                if (userChoice <= 0 || userChoice > cust.CustAccts.Count)
+                {
+                    ATM_Screen.PrintMessage(ATM_Screen.InvalidInputStr, true);
+                    continue;
+                }
 
-            } while (false);
+                depAccount = cust.CustAccts[userChoice-1];
+                acctValid = true;
 
-            // Check work thus far
-            Console.WriteLine(depAccount.AccountName);
+            } while (!acctValid);
+
+            transactionAmt = Utility.ValidateDecInput("Please enter amount for deposit: ");
+
+            
+
+            Console.WriteLine(transactionAmt);
             Console.ReadLine();
+
         }
     }
 }

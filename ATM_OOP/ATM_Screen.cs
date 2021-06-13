@@ -91,7 +91,7 @@ namespace ATM_OOP
 
             for (int i = 0; i < cust.CustAccts.Count; i++)
             {
-                acctLine = (i+1).ToString() + ". " + cust.CustAccts[i].AccountName;
+                acctLine = " " + (i+1).ToString() + ". " + cust.CustAccts[i].AccountName;
                 Console.Write("|" + acctLine.PadRight(MENU_BOX_WIDTH) + "|\n");
             }
 

@@ -52,6 +52,25 @@ namespace ATM_OOP
             return value;
         }
 
+        public static decimal ValidateDecInput(string input)
+        {
+            decimal value = 0;
+            bool valid = false;
 
+            do
+            {
+                Console.Write(input);
+                valid = decimal.TryParse(Console.ReadLine(), out value);
+                if (!valid)
+                    ATM_Screen.PrintMessage(ATM_Screen.InvalidInputStr, true);
+                else if (value < 0)
+                {
+                    ATM_Screen.PrintMessage("Amount to deposit cannot be negative", true);
+                    valid = false;
+                }
+            } while (!valid);
+
+            return value;
+        }
     }
 }
