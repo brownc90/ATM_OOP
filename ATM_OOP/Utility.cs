@@ -32,40 +32,40 @@ namespace ATM_OOP
             return sb.ToString();
         }
 
-        // ***MAY BE OBSOLETE***
-        public static Int32 ValidateIntInput(string input)
+        public static Int32 ValidateIntInput(string prompt = "")
         {
             // Declare local variables
             int value = 0;        // 0 is default because there will never be an option 0 on a menu
             bool valid = false;
 
-            // TO DO: allow for hidden input function to feed into this one
-            // pass empty string into prompt input, and ReadLine into user input
-//            do
-//            {
-            Console.Write(input);
-            valid = Int32.TryParse(Console.ReadLine(), out value);
-            if (!valid)
-                ATM_Screen.PrintMessage(ATM_Screen.InvalidInputStr, true);
-//            } while (!valid);
+            do
+            {
+                Console.Write(prompt);
+                valid = Int32.TryParse(Console.ReadLine(), out value);
+                if (!valid)
+                    ATM_Screen.PrintMessage(ATM_Screen.InvalidInputStr, true);
+            } while (!valid);
 
             return value;
         }
 
-        public static decimal ValidateDecInput(string input)
+        public static decimal ValidateDecInput(string prompt)
         {
+            // Declare local variables
             decimal value = 0;
             bool valid = false;
 
             do
             {
-                Console.Write(input);
+                Console.Clear();
+
+                Console.Write(prompt);
                 valid = decimal.TryParse(Console.ReadLine(), out value);
                 if (!valid)
                     ATM_Screen.PrintMessage(ATM_Screen.InvalidInputStr, true);
                 else if (value < 0)
                 {
-                    ATM_Screen.PrintMessage("Amount to deposit cannot be negative", true);
+                    ATM_Screen.PrintMessage("Amount cannot be negative", true);
                     valid = false;
                 }
             } while (!valid);

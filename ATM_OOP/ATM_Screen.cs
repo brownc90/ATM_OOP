@@ -23,6 +23,11 @@ namespace ATM_OOP
         [Description("Exit")]
         Exit
     }
+    public enum TransType
+    {
+        deposit,
+        withdrawal
+    }
 
     static class ATM_Screen
     {
@@ -39,11 +44,21 @@ namespace ATM_OOP
             PrintDotAnim();
         }
 
+        public static void ConfirmLogout()
+        {
+            Console.Clear();
+            Console.Write("Logout successful.\n"
+                        + "Thank you for choosing this ATM!\n");
+
+            PrintDotAnim();
+        }
+
         public static void ShowBye()
         {
             Console.Clear();
-            Console.WriteLine("Thank you for choosing this ATM! Now shutting down");
+            Console.Write("Thank you for choosing this ATM! Now shutting down");
 
+            // TO DO: have dots (only) erase and repeat 3x
             PrintDotAnim();
         }
 
@@ -51,13 +66,13 @@ namespace ATM_OOP
         public static void ShowMenu1()
         {
             Console.Clear();
-            Console.Write(" ------------------------\n"
-                        + "| Login Menu             |\n"
-                        + "|                        |\n"
-                        + "| 1. Insert Debit Card   |\n"
-                        + "| 2. Exit                |\n"
-                        + "|                        |\n"
-                        + " ------------------------\n"
+            Console.Write(" ------------------------------\n"
+                        + "| Login Menu                   |\n"
+                        + "|                              |\n"
+                        + "| 1. Insert Debit Card         |\n"
+                        + "| 2. Exit                      |\n"
+                        + "|                              |\n"
+                        + " ------------------------------\n"
                         + "What would you like to do? ");
         }
 
@@ -79,7 +94,7 @@ namespace ATM_OOP
                         + "What would you like to do? ");
         }
 
-        public static void ShowDepMenu(Customer cust)
+        public static void ShowAcctsMenu(Customer cust)
         {
             // Declare local variables
             string acctLine;
@@ -97,7 +112,12 @@ namespace ATM_OOP
 
             Console.Write("|                              |\n"
                         + " ------------------------------\n");
-//                        + "Select an account for deposit: ");
+//                        + "Select an account for {0}: ", transType);
+        }
+
+        public static void ConfirmTransaction()
+        {
+
         }
 
         public static void PrintMessage(string msg, bool isError)
@@ -129,7 +149,7 @@ namespace ATM_OOP
             for (int x = 0; x < numDots; x++)
             {
                 Console.Write(".");
-                Thread.Sleep(200);
+                Thread.Sleep(250);
             }
             Console.WriteLine();
         }

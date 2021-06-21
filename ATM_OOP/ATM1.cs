@@ -11,8 +11,11 @@ namespace ATM_OOP
         private static Customer currentCustomer;
         //        private static Customer tryCustomer;
         private static decimal transactionAmt;
+        private static bool verified;
+        private static string transTypeStr;
         private const int LOGIN_LIMIT = 3;
-        
+        private const int MENU_BOX_WIDTH = 39;
+
         // Build customer base
         public void Initialize()
         {
@@ -46,7 +49,12 @@ namespace ATM_OOP
                 {
                     // Option 1. Insert Debit Card
                     case "1":
+                        verified = false;
+
                         CheckCredentials();
+
+                        if (!verified)
+                            continue;
 
                         do
                         {
@@ -68,6 +76,7 @@ namespace ATM_OOP
                                     break;
                                 // Option 3. Make Withdrawal
                                 case "3":
+                                    MakeWithdrawal(currentCustomer);
 
                                     break;
                                 // Option 4. Transfer Funds
@@ -80,6 +89,9 @@ namespace ATM_OOP
                                     break;
                                 // Option 6. Log Out
                                 case "6":
+                                    ATM_Screen.ConfirmLogout();
+
+                                    Execute();
 
                                     break;
                                 default:
@@ -157,7 +169,7 @@ namespace ATM_OOP
                         ATM_Screen.PrintMessage("Login attempt failed too many times.\n"
                                               + "Please contact Customer Support, "
                                               + "or try again later.", false);
-                        Execute();
+                        return;
                     }
 
                     // Reach this point if Card # incorrect and attempt limit not reached
@@ -193,7 +205,7 @@ namespace ATM_OOP
                                                    + "Please contact Customer Support, "
                                                    + "or try again later.", false);
 
-                            Execute();
+                            return;
                         }
 
                         // Reach this point if Pin incorrect and attempt limit not reached
@@ -208,6 +220,7 @@ namespace ATM_OOP
 
                 // Reach this point if credentials are verified
                 // Approve customer and exit the verification loop
+                verified = true;
                 currentCustomer = tryCustomer;
                 break;
             }
@@ -223,19 +236,23 @@ namespace ATM_OOP
         public void MakeDeposit(Customer cust)
         {
             // Declare local variables
-            Account depAccount;
             int userChoice;
-            bool acctValid;
+            int acctIndex;
+            bool acctValid, confirmed;
+            string reviewLine1, reviewLine2, reviewLine3;
+
+            transTypeStr = "Deposit";
 
             do
             {
                 acctValid = false;
-                depAccount = new Account();
+                acctIndex = -1;
                 transactionAmt = 0m;
 
-                ATM_Screen.ShowDepMenu(cust);
+                ATM_Screen.ShowAcctsMenu(cust);
 
-                userChoice = Utility.ValidateIntInput("Select an account for deposit: ");
+                userChoice = Utility.ValidateIntInput("Select an account for "
+                                                        + transTypeStr.ToLower() + ": ");
 
                 if (userChoice <= 0 || userChoice > cust.CustAccts.Count)
                 {
@@ -243,18 +260,177 @@ namespace ATM_OOP
                     continue;
                 }
 
-                depAccount = cust.CustAccts[userChoice-1];
+                acctIndex = userChoice - 1;
                 acctValid = true;
 
             } while (!acctValid);
 
-            transactionAmt = Utility.ValidateDecInput("Please enter amount for deposit: ");
+            transactionAmt = Utility.ValidateDecInput(String.Format("Account for {0}: {1}\n"
+                                                    + "Please enter amount for {2}: ",
+                                                    transTypeStr.ToLower(),
+                                                    cust.CustAccts[acctIndex].AccountName,
+                                                    transTypeStr.ToLower()));
 
-            
+            reviewLine1 = String.Format(" Account balance before : {0:N2}",
+                                            cust.CustAccts[acctIndex].Balance);
+            reviewLine2 = String.Format("                          + {0:N2}", transactionAmt);
+            reviewLine3 = String.Format(" Account balance after  :   {0:N2}",
+                                            cust.CustAccts[acctIndex].Balance+transactionAmt);
 
-            Console.WriteLine(transactionAmt);
-            Console.ReadLine();
+            do
+            {
+                confirmed = false;
 
+                Console.Clear();
+
+                Console.Write("Account for {0}: {1}\n"
+                            + " ---------------------------------------\n"
+                            + "| Transaction Review                    |\n"
+                            + "|                                       |\n",
+                                transTypeStr.ToLower(),
+                                cust.CustAccts[acctIndex].AccountName);
+                Console.Write("|" + reviewLine1.PadRight(MENU_BOX_WIDTH) + "|\n");
+                Console.Write("|" + reviewLine2.PadRight(MENU_BOX_WIDTH) + "|\n");
+                Console.Write("|                          ____________ |\n");
+                Console.Write("|" + reviewLine3.PadRight(MENU_BOX_WIDTH) + "|\n");
+                Console.Write("|                                       |\n"
+                            + "| 1. Confirm                            |\n"
+                            + "| 2. Cancel                             |\n"
+                            + "|                                       |\n"
+                            + " ---------------------------------------\n");
+
+                switch (Console.ReadLine())
+                {
+                    // Option 1: Confirm
+                    case "1":
+                        confirmed = true;
+
+                        break;
+                    // Option 2: Cancel
+                    case "2":
+                        ATM_Screen.PrintMessage("Transaction canceled.", false);
+
+                        return;
+                    default:
+                        ATM_Screen.PrintMessage(ATM_Screen.InvalidInputStr, true);
+
+                        break;
+                }
+
+            } while (!confirmed);
+
+            cust.CustAccts[acctIndex].Balance += transactionAmt;
+
+            ATM_Screen.PrintMessage(transTypeStr + " successful! Thank you.", false);
+
+            var transaction = new Transaction();
+        }
+
+        public void MakeWithdrawal(Customer cust)
+        {
+            // Declare local variables
+            int userChoice;
+            int acctIndex;
+            bool acctValid, amtValid, confirmed, cancel;
+            string reviewLine1, reviewLine2, reviewLine3;
+
+            transTypeStr = "Withdrawal";
+
+            do
+            {
+                acctValid = false;
+                acctIndex = -1;
+                transactionAmt = 0m;
+
+                ATM_Screen.ShowAcctsMenu(cust);
+
+                userChoice = Utility.ValidateIntInput("Select an account for "
+                                                        + transTypeStr.ToLower() + ": ");
+
+                if (userChoice <= 0 || userChoice > cust.CustAccts.Count)
+                {
+                    ATM_Screen.PrintMessage(ATM_Screen.InvalidInputStr, true);
+                    continue;
+                }
+
+                acctIndex = userChoice - 1;
+                acctValid = true;
+
+            } while (!acctValid);
+
+            do
+            {
+                amtValid = false;
+
+                transactionAmt = Utility.ValidateDecInput(String.Format("Account for {0}: {1}\n"
+                                                        + "Please enter amount for {2}: ",
+                                                        transTypeStr.ToLower(),
+                                                        cust.CustAccts[acctIndex].AccountName,
+                                                        transTypeStr.ToLower()));
+
+                // TO DO: amt cannot bring balance below 0
+                if (transactionAmt > cust.CustAccts[acctIndex].Balance)
+                {
+                    ATM_Screen.PrintMessage("Insufficient funds", true);
+                }
+
+                amtValid = true;
+
+            } while (!amtValid);
+
+            reviewLine1 = String.Format(" Account balance before : {0:N2}",
+                                            cust.CustAccts[acctIndex].Balance);
+            reviewLine2 = String.Format("                          - {0:N2}", transactionAmt);
+            reviewLine3 = String.Format(" Account balance after  :   {0:N2}",
+                                            cust.CustAccts[acctIndex].Balance - transactionAmt);
+
+            do
+            {
+                confirmed = false;
+
+                Console.Clear();
+
+                Console.Write("Account for {0}: {1}\n"
+                            + " ---------------------------------------\n"
+                            + "| Transaction Review                    |\n"
+                            + "|                                       |\n",
+                                transTypeStr.ToLower(),
+                                cust.CustAccts[acctIndex].AccountName);
+                Console.Write("|" + reviewLine1.PadRight(MENU_BOX_WIDTH) + "|\n");
+                Console.Write("|" + reviewLine2.PadRight(MENU_BOX_WIDTH) + "|\n");
+                Console.Write("|                          ____________ |\n");
+                Console.Write("|" + reviewLine3.PadRight(MENU_BOX_WIDTH) + "|\n");
+                Console.Write("|                                       |\n"
+                            + "| 1. Confirm                            |\n"
+                            + "| 2. Cancel                             |\n"
+                            + "|                                       |\n"
+                            + " ---------------------------------------\n");
+
+                switch (Console.ReadLine())
+                {
+                    // Option 1: Confirm
+                    case "1":
+                        confirmed = true;
+
+                        break;
+                    // Option 2: Cancel
+                    case "2":
+                        ATM_Screen.PrintMessage("Transaction canceled.", false);
+
+                        return;
+                    default:
+                        ATM_Screen.PrintMessage(ATM_Screen.InvalidInputStr, true);
+
+                        break;
+                }
+
+            } while (!confirmed);
+
+            cust.CustAccts[acctIndex].Balance -= transactionAmt;
+
+            ATM_Screen.PrintMessage(transTypeStr + " successful! Thank you.", false);
+
+            var transaction = new Transaction();
         }
     }
 }

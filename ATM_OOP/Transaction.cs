@@ -6,5 +6,9 @@ namespace ATM_OOP
 {
     class Transaction
     {
+        public int TransID { get; set; }
+        public DateTime TransDate { get; set; }
+        public decimal TransAmount { get; set; }
+
     }
 }
