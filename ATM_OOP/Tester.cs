@@ -6,11 +6,14 @@ namespace ATM_OOP
     {
         static void Main(string[] args)
         {
-            var thisATM = new ATM1();
+            var thisBank = new Bank();
 
-            thisATM.Initialize();
+            thisBank.Initialize();
 
-            thisATM.Execute();
+            thisBank.AddATM();
+
+            thisBank.ATM_List[0].Execute();
+
         }
     }
 }

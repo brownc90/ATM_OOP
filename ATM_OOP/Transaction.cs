@@ -9,6 +9,7 @@ namespace ATM_OOP
         public int TransID { get; set; }
         public DateTime TransDate { get; set; }
         public decimal TransAmount { get; set; }
+//        public int
 
     }
 }

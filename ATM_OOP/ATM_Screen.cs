@@ -31,9 +31,10 @@ namespace ATM_OOP
 
     static class ATM_Screen
     {
-
+        // Declare local variables
         public static string InvalidInputStr = "That is not a valid input";
-        public const int MENU_BOX_WIDTH = 30;
+        public const int MENU_BOX_WIDTH_SM = 30;
+        public const int MENU_BOX_WIDTH_LG = 39;
 
         public static void ShowWelcome()
         {
@@ -107,7 +108,7 @@ namespace ATM_OOP
             for (int i = 0; i < cust.CustAccts.Count; i++)
             {
                 acctLine = " " + (i+1).ToString() + ". " + cust.CustAccts[i].AccountName;
-                Console.Write("|" + acctLine.PadRight(MENU_BOX_WIDTH) + "|\n");
+                Console.Write("|" + acctLine.PadRight(MENU_BOX_WIDTH_SM) + "|\n");
             }
 
             Console.Write("|                              |\n"

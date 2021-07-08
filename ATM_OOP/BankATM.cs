@@ -1,37 +1,34 @@
-﻿using System;
+﻿/**************************************************************************
+ *                                                                        *
+ * Each object of this BankATM class is an ATM machine for a single       *
+ * shared bank of customers.                                              *
+ *                                                                        *
+ *************************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace ATM_OOP
 {
-    class ATM1
+    class BankATM
     {
+        public int ATM_Num { get; set; }
+        private Bank parentBank;
+
         // Declare local variables
-        private static List<Customer> customerList;
         private static Customer currentCustomer;
         //        private static Customer tryCustomer;
         private static decimal transactionAmt;
         private static bool verified;
-        private static string transTypeStr;
+        private static string transTypeStr; // Should be enum?
         private const int LOGIN_LIMIT = 3;
-        private const int MENU_BOX_WIDTH = 39;
 
-        // Build customer base
-        public void Initialize()
+        // Constructor(s)
+        public BankATM(Bank parentBank)
         {
-            // TO DO: integrate with a database of customers
-            customerList = new List<Customer>
-            {
-                new Customer() { FullName = "Olivia Brown", CustNo = 1,
-                                CardNo = "12345", Pin = "4321", IsActive = true,
-                                CustAccts = new List<Account>
-                                {
-                                    new Account() { AccountName = "Checking", Balance = 0m },
-                                    new Account() { AccountName = "Savings", Balance = 150m },
-                                    new Account() { AccountName = "Custom1", Balance = 1157.27m }
-                                }
-                }
-            };
+            ATM_Num = parentBank.ATM_List.Count + 1;
+            this.parentBank = parentBank;
         }
 
         // Starting point of ATM execution, from customer's perspective
@@ -61,11 +58,11 @@ namespace ATM_OOP
                             ATM_Screen.ShowMenu2();
 
                             switch (Console.ReadLine())
-//                            switch (Utility.ValidateIntInput("What would you like to do? "))
+                            //switch (Utility.ValidateIntInput("What would you like to do? "))
                             {
                                 // Option 1. View Balance
                                 case "1":
-//                                case (int)Menu2Items.ViewBal:
+                                //case (int)Menu2Items.ViewBal:
                                     ViewBalance(currentCustomer);
 
                                     break;
@@ -150,9 +147,9 @@ namespace ATM_OOP
                 */
                 #endregion
 
-                foreach (Customer c in customerList)
+                foreach (Customer c in parentBank.CustomerList)
                 {
-                    if (c.CardNo.Equals(cardInput))
+                    if (c.CardNum.Equals(cardInput))
                     {
                         tryCustomer = c;
                         cardRecognized = true;
@@ -271,10 +268,11 @@ namespace ATM_OOP
                                                     cust.CustAccts[acctIndex].AccountName,
                                                     transTypeStr.ToLower()));
 
-            reviewLine1 = String.Format(" Account balance before : {0:N2}",
+            reviewLine1 = String.Format(" Account balance before |   {0:N2}",
                                             cust.CustAccts[acctIndex].Balance);
-            reviewLine2 = String.Format("                          + {0:N2}", transactionAmt);
-            reviewLine3 = String.Format(" Account balance after  :   {0:N2}",
+            reviewLine2 = String.Format("                        | + {0:N2}",
+                                            transactionAmt);
+            reviewLine3 = String.Format(" Account balance after  |   {0:N2}",
                                             cust.CustAccts[acctIndex].Balance+transactionAmt);
 
             do
@@ -283,6 +281,32 @@ namespace ATM_OOP
 
                 Console.Clear();
 
+                Console.Write("Account for {0}: {1}\n"
+                                + " ",
+                                transTypeStr.ToLower(),
+                                cust.CustAccts[acctIndex].AccountName);
+
+                for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
+                    Console.Write("-");
+                Console.WriteLine();
+                Console.Write("|" + " Transaction Review".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)  + "|\n"
+                            + "|" + " ".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)                    + "|\n"
+                            + "|" + reviewLine1.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)            + "|\n"
+                            + "|" + reviewLine2.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)            + "|\n"
+                            + "|                        | ____________ |\n"
+                            + "|" + reviewLine3.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)            + "|\n"
+                            + "|" + "".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)                     + "|\n"
+                            + "|" + " 1. Confirm".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)          + "|\n"
+                            + "|" + " 2. Cancel".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)           + "|\n"
+                            + "|" + " ".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)                    + "|\n"
+                            + " ");
+                for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
+                    Console.Write("-");
+                Console.WriteLine();
+
+                // Visual-friendly, less customizable version of above code
+                #region
+                /*
                 Console.Write("Account for {0}: {1}\n"
                             + " ---------------------------------------\n"
                             + "| Transaction Review                    |\n"
@@ -298,6 +322,8 @@ namespace ATM_OOP
                             + "| 2. Cancel                             |\n"
                             + "|                                       |\n"
                             + " ---------------------------------------\n");
+                */
+                #endregion
 
                 switch (Console.ReadLine())
                 {
@@ -323,7 +349,9 @@ namespace ATM_OOP
 
             ATM_Screen.PrintMessage(transTypeStr + " successful! Thank you.", false);
 
-            var transaction = new Transaction();
+            var transaction = new Transaction() { TransID = 1, TransDate = DateTime.Now,
+                                                    TransAmount = transactionAmt
+            };
         }
 
         public void MakeWithdrawal(Customer cust)
@@ -331,7 +359,7 @@ namespace ATM_OOP
             // Declare local variables
             int userChoice;
             int acctIndex;
-            bool acctValid, amtValid, confirmed, cancel;
+            bool acctValid, amtValid, confirmed;
             string reviewLine1, reviewLine2, reviewLine3;
 
             transTypeStr = "Withdrawal";
@@ -371,7 +399,7 @@ namespace ATM_OOP
                 // TO DO: amt cannot bring balance below 0
                 if (transactionAmt > cust.CustAccts[acctIndex].Balance)
                 {
-                    ATM_Screen.PrintMessage("Insufficient funds", true);
+                    ATM_Screen.PrintMessage("Insufficient funds.", true);
                 }
 
                 amtValid = true;
@@ -391,6 +419,32 @@ namespace ATM_OOP
                 Console.Clear();
 
                 Console.Write("Account for {0}: {1}\n"
+                + " ",
+                transTypeStr.ToLower(),
+                cust.CustAccts[acctIndex].AccountName);
+
+                for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
+                    Console.Write("-");
+                Console.WriteLine();
+                Console.Write("|" + " Transaction Review".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+                            + "|" + " ".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+                            + "|" + reviewLine1.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+                            + "|" + reviewLine2.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+                            + "|                          ____________ |\n"
+                            + "|" + reviewLine3.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+                            + "|" + "".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+                            + "|" + " 1. Confirm".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+                            + "|" + " 2. Cancel".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+                            + "|" + " ".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+                            + " ");
+                for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
+                    Console.Write("-");
+                Console.WriteLine();
+
+                // Visual-friendly, less customizable version of above code
+                #region
+                /*
+                Console.Write("Account for {0}: {1}\n"
                             + " ---------------------------------------\n"
                             + "| Transaction Review                    |\n"
                             + "|                                       |\n",
@@ -405,6 +459,8 @@ namespace ATM_OOP
                             + "| 2. Cancel                             |\n"
                             + "|                                       |\n"
                             + " ---------------------------------------\n");
+                */
+                #endregion
 
                 switch (Console.ReadLine())
                 {

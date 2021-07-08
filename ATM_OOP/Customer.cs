@@ -7,10 +7,10 @@ namespace ATM_OOP
     class Customer
     {
         public string FullName { get; set; }
-        public int CustNo { get; set; }
-        // CardNo is always 5-digit int (or string?)
-        public string CardNo { get; set; }
-        // Pin is always 4-digit int (or string?)
+        public int CustNum { get; set; }
+        // CardNum is always 5-digit string
+        public string CardNum { get; set; }
+        // Pin is always 4-digit string
         public string Pin { get; set; }
         public bool IsActive { get; set; }
         public List<Account> CustAccts;
