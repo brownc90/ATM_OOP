@@ -17,11 +17,11 @@ namespace ATM_OOP
 
         // TO DO: Add constructor class to initialize new customers w single account
 
-        public static decimal CalcTotalBal(Customer cust)
+        public decimal CalcTotalBal()
         {
             decimal total = 0m;
 
-            foreach (Account a in cust.CustAccts)
+            foreach (Account a in CustAccts)
             {
                 total += a.Balance;
             }

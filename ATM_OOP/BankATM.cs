@@ -225,9 +225,34 @@ namespace ATM_OOP
 
         public void ViewBalance(Customer cust)
         {
+            string totalLine, acctLine;
+
+            Console.Clear();
+
             // TO DO: Format correctly -- with CultureInfo object?
-            ATM_Screen.PrintMessage(String.Format("Total account balance: {0:C2}",
-                                                    Customer.CalcTotalBal(cust)), false);
+            totalLine = String.Format("Total account balance: {0:C2}", cust.CalcTotalBal());
+
+            Console.Write(" ");
+            for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
+                Console.Write("-");
+            Console.WriteLine();
+            Console.Write("|" + totalLine.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+                        + "|" + "".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n");
+
+           for (int i = 0; i < cust.CustAccts.Count; i++)
+            {
+                acctLine = " " + cust.CustAccts[i].AccountName + ": "
+                                + String.Format("{0:C2}", cust.CustAccts[i].Balance);
+
+                Console.Write("|" + acctLine.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n");
+            }
+
+            Console.Write("|" + "".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+                        + " ");
+            for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
+                Console.Write("-");
+            Console.WriteLine();
+            Console.ReadKey();
         }
 
         public void MakeDeposit(Customer cust)
