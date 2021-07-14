@@ -15,8 +15,8 @@ namespace ATM_OOP
             // TO DO: integrate with a database of customers
             CustomerList = new List<Customer>
             {
-                new Customer() { FullName = "Olivia Brown", CustNum = 1,
-                                CardNum = "12345", Pin = "4321", IsActive = true,
+                new Customer() { FullName = "Olivia Brown",
+                                CardNum = "12345", Pin = "4321",
                                 CustAccts = new List<Account>
                                 {
                                     new Account() { AccountName = "Checking", Balance = 0m },
@@ -24,14 +24,15 @@ namespace ATM_OOP
                                     new Account() { AccountName = "Custom1", Balance = 1157.27m }
                                 }
                 },
-                new Customer() { FullName = "Liberty Bibberty", CustNum = 2,
-                                CardNum = "55555", Pin = "5555", IsActive = true,
+                new Customer() { FullName = "Liberty Bibberty",
+                                CardNum = "55555", Pin = "5555",
                                 CustAccts = new List<Account>
                                 {
                                     new Account() { AccountName = "Checking", Balance = 0m },
                                     new Account() { AccountName = "Savings", Balance = 4500m },
                                     new Account() { AccountName = "Custom1", Balance = 50.95m },
-                                    new Account() { AccountName = "Custom2", Balance = 50m }
+                                    new Account() { AccountName = "Custom2", Balance = 50m },
+                                    new Account() { AccountName = "Emergency Fund", Balance = 1000m }
                                 }
                 }
             };

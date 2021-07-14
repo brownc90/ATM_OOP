@@ -8,8 +8,29 @@ namespace ATM_OOP
     {
         public int TransID { get; set; }
         public DateTime TransDate { get; set; }
+        public TransactionType TransType { get; set; }
         public decimal TransAmount { get; set; }
-//        public int
+        // SourceAcct = Account# of account which is currently accessed during transaction
+        // Ex: Account from which a fund transfer is sent
+        public int SourceAcct { get; set; }
+        // TargetAcct = Account# of account which is the destination of the transaction
+        // Ex: Account to which a fund transfer is sent
+        public int TargetAcct { get; set; }
 
+        private static int transCount = 0;
+
+        public Transaction()
+        {
+            transCount++;
+            TransID = transCount;
+        }
+
+    }
+
+    public enum TransactionType
+    {
+        Deposit,
+        Withdrawal,
+        Transfer
     }
 }

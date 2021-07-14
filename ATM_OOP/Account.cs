@@ -9,6 +9,13 @@ namespace ATM_OOP
         public string AccountName { get; set; }
         public int AccountNum { get; set; }
         public decimal Balance { get; set; }
-        public List<Transaction> AcctTransactions;
+
+        private static int acctCount = 0;
+
+        public Account()
+        {
+            acctCount++;
+            AccountNum = acctCount;
+        }
     }
 }

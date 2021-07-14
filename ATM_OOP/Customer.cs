@@ -12,10 +12,18 @@ namespace ATM_OOP
         public string CardNum { get; set; }
         // Pin is always 4-digit string
         public string Pin { get; set; }
-        public bool IsActive { get; set; }
         public List<Account> CustAccts;
+        public List<Transaction> AcctTransactions;
 
-        // TO DO: Add constructor class to initialize new customers w single account
+        private static int custCount = 0;
+
+        public Customer()
+        {
+            custCount++;
+            CustNum = custCount;
+
+            //AcctTransactions = new List<Transaction>();
+        }
 
         public decimal CalcTotalBal()
         {

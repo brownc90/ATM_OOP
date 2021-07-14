@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ConsoleTables;
 
 namespace ATM_OOP
 {
@@ -53,6 +54,8 @@ namespace ATM_OOP
                         if (!verified)
                             continue;
 
+                        currentCustomer.AcctTransactions = new List<Transaction>();
+
                         do
                         {
                             ATM_Screen.ShowMenu2();
@@ -63,17 +66,17 @@ namespace ATM_OOP
                                 // Option 1. View Balance
                                 case "1":
                                 //case (int)Menu2Items.ViewBal:
-                                    ViewBalance(currentCustomer);
+                                    ViewBalance();
 
                                     break;
                                 // Option 2. Make Deposit
                                 case "2":
-                                    MakeDeposit(currentCustomer);
+                                    MakeDeposit();
 
                                     break;
                                 // Option 3. Make Withdrawal
                                 case "3":
-                                    MakeWithdrawal(currentCustomer);
+                                    MakeWithdrawal();
 
                                     break;
                                 // Option 4. Transfer Funds
@@ -82,6 +85,7 @@ namespace ATM_OOP
                                     break;
                                 // Option 5. View Transaction History
                                 case "5":
+                                    ViewTransactions();
 
                                     break;
                                 // Option 6. Log Out
@@ -223,14 +227,14 @@ namespace ATM_OOP
             }
         }
 
-        public void ViewBalance(Customer cust)
+        public void ViewBalance()
         {
             string totalLine, acctLine;
 
             Console.Clear();
 
             // TO DO: Format correctly -- with CultureInfo object?
-            totalLine = String.Format("Total account balance: {0:C2}", cust.CalcTotalBal());
+            totalLine = String.Format("Total account balance: {0:C2}", currentCustomer.CalcTotalBal());
 
             Console.Write(" ");
             for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
@@ -239,10 +243,10 @@ namespace ATM_OOP
             Console.Write("|" + totalLine.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
                         + "|" + "".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n");
 
-           for (int i = 0; i < cust.CustAccts.Count; i++)
+           for (int i = 0; i < currentCustomer.CustAccts.Count; i++)
             {
-                acctLine = " " + cust.CustAccts[i].AccountName + ": "
-                                + String.Format("{0:C2}", cust.CustAccts[i].Balance);
+                acctLine = " " + currentCustomer.CustAccts[i].AccountName + ": "
+                                + String.Format("{0:C2}", currentCustomer.CustAccts[i].Balance);
 
                 Console.Write("|" + acctLine.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n");
             }
@@ -251,11 +255,11 @@ namespace ATM_OOP
                         + " ");
             for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
                 Console.Write("-");
-            Console.WriteLine();
-            Console.ReadKey();
+
+            ATM_Screen.PrintMessage("", false);
         }
 
-        public void MakeDeposit(Customer cust)
+        public void MakeDeposit()
         {
             // Declare local variables
             int userChoice;
@@ -271,12 +275,12 @@ namespace ATM_OOP
                 acctIndex = -1;
                 transactionAmt = 0m;
 
-                ATM_Screen.ShowAcctsMenu(cust);
+                ATM_Screen.ShowAcctsMenu(currentCustomer);
 
                 userChoice = Utility.ValidateIntInput("Select an account for "
                                                         + transTypeStr.ToLower() + ": ");
 
-                if (userChoice <= 0 || userChoice > cust.CustAccts.Count)
+                if (userChoice <= 0 || userChoice > currentCustomer.CustAccts.Count)
                 {
                     ATM_Screen.PrintMessage(ATM_Screen.InvalidInputStr, true);
                     continue;
@@ -290,15 +294,15 @@ namespace ATM_OOP
             transactionAmt = Utility.ValidateDecInput(String.Format("Account for {0}: {1}\n"
                                                     + "Please enter amount for {2}: ",
                                                     transTypeStr.ToLower(),
-                                                    cust.CustAccts[acctIndex].AccountName,
+                                                    currentCustomer.CustAccts[acctIndex].AccountName,
                                                     transTypeStr.ToLower()));
 
             reviewLine1 = String.Format(" Account balance before |   {0:N2}",
-                                            cust.CustAccts[acctIndex].Balance);
+                                            currentCustomer.CustAccts[acctIndex].Balance);
             reviewLine2 = String.Format("                        | + {0:N2}",
                                             transactionAmt);
             reviewLine3 = String.Format(" Account balance after  |   {0:N2}",
-                                            cust.CustAccts[acctIndex].Balance+transactionAmt);
+                                            currentCustomer.CustAccts[acctIndex].Balance+transactionAmt);
 
             do
             {
@@ -309,7 +313,7 @@ namespace ATM_OOP
                 Console.Write("Account for {0}: {1}\n"
                                 + " ",
                                 transTypeStr.ToLower(),
-                                cust.CustAccts[acctIndex].AccountName);
+                                currentCustomer.CustAccts[acctIndex].AccountName);
 
                 for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
                     Console.Write("-");
@@ -370,16 +374,22 @@ namespace ATM_OOP
 
             } while (!confirmed);
 
-            cust.CustAccts[acctIndex].Balance += transactionAmt;
+            currentCustomer.CustAccts[acctIndex].Balance += transactionAmt;
 
             ATM_Screen.PrintMessage(transTypeStr + " successful! Thank you.", false);
 
-            var transaction = new Transaction() { TransID = 1, TransDate = DateTime.Now,
-                                                    TransAmount = transactionAmt
+            // Add as a new Transaction object to this Customer's transaction list
+            var transaction = new Transaction() { TransDate = DateTime.Now,
+                                                    TransType = TransactionType.Deposit,
+                                                    TransAmount = transactionAmt,
+                                                    SourceAcct = currentCustomer.CustAccts[acctIndex].AccountNum,
+                                                    TargetAcct = currentCustomer.CustAccts[acctIndex].AccountNum
             };
+
+            currentCustomer.AcctTransactions.Add(transaction);
         }
 
-        public void MakeWithdrawal(Customer cust)
+        public void MakeWithdrawal()
         {
             // Declare local variables
             int userChoice;
@@ -395,12 +405,12 @@ namespace ATM_OOP
                 acctIndex = -1;
                 transactionAmt = 0m;
 
-                ATM_Screen.ShowAcctsMenu(cust);
+                ATM_Screen.ShowAcctsMenu(currentCustomer);
 
                 userChoice = Utility.ValidateIntInput("Select an account for "
                                                         + transTypeStr.ToLower() + ": ");
 
-                if (userChoice <= 0 || userChoice > cust.CustAccts.Count)
+                if (userChoice <= 0 || userChoice > currentCustomer.CustAccts.Count)
                 {
                     ATM_Screen.PrintMessage(ATM_Screen.InvalidInputStr, true);
                     continue;
@@ -418,11 +428,11 @@ namespace ATM_OOP
                 transactionAmt = Utility.ValidateDecInput(String.Format("Account for {0}: {1}\n"
                                                         + "Please enter amount for {2}: ",
                                                         transTypeStr.ToLower(),
-                                                        cust.CustAccts[acctIndex].AccountName,
+                                                        currentCustomer.CustAccts[acctIndex].AccountName,
                                                         transTypeStr.ToLower()));
 
                 // TO DO: amt cannot bring balance below 0
-                if (transactionAmt > cust.CustAccts[acctIndex].Balance)
+                if (transactionAmt > currentCustomer.CustAccts[acctIndex].Balance)
                 {
                     ATM_Screen.PrintMessage("Insufficient funds.", true);
                 }
@@ -432,10 +442,10 @@ namespace ATM_OOP
             } while (!amtValid);
 
             reviewLine1 = String.Format(" Account balance before : {0:N2}",
-                                            cust.CustAccts[acctIndex].Balance);
+                                            currentCustomer.CustAccts[acctIndex].Balance);
             reviewLine2 = String.Format("                          - {0:N2}", transactionAmt);
             reviewLine3 = String.Format(" Account balance after  :   {0:N2}",
-                                            cust.CustAccts[acctIndex].Balance - transactionAmt);
+                                            currentCustomer.CustAccts[acctIndex].Balance - transactionAmt);
 
             do
             {
@@ -446,7 +456,7 @@ namespace ATM_OOP
                 Console.Write("Account for {0}: {1}\n"
                 + " ",
                 transTypeStr.ToLower(),
-                cust.CustAccts[acctIndex].AccountName);
+                currentCustomer.CustAccts[acctIndex].AccountName);
 
                 for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
                     Console.Write("-");
@@ -507,11 +517,46 @@ namespace ATM_OOP
 
             } while (!confirmed);
 
-            cust.CustAccts[acctIndex].Balance -= transactionAmt;
+            currentCustomer.CustAccts[acctIndex].Balance -= transactionAmt;
 
             ATM_Screen.PrintMessage(transTypeStr + " successful! Thank you.", false);
 
-            var transaction = new Transaction();
+            // Add as a new Transaction object to this Customer's transaction list
+            var transaction = new Transaction()
+            {
+                TransDate = DateTime.Now,
+                TransType = TransactionType.Withdrawal,
+                TransAmount = transactionAmt,
+                SourceAcct = currentCustomer.CustAccts[acctIndex].AccountNum,
+                TargetAcct = currentCustomer.CustAccts[acctIndex].AccountNum
+            };
+
+            currentCustomer.AcctTransactions.Add(transaction);
+        }
+
+        public void ViewTransactions()
+        {
+            Console.Clear();
+
+            if (currentCustomer.AcctTransactions.Count <= 0)
+            {
+                ATM_Screen.PrintMessage("No recent transactions to report", false);
+                return;
+            }
+
+            var ctable = new ConsoleTable("Type", "Account From", "Account To", "Amount", "Transaction Date");
+
+            foreach (var t in currentCustomer.AcctTransactions)
+                ctable.AddRow(t.TransType, t.SourceAcct, t.TargetAcct, String.Format("{0:C2}", t.TransAmount), t.TransDate);
+
+            // Configure the output table
+            ctable.Options.EnableCount = false;
+            //ctable.Configure(o => o.NumberAlignment = Alignment.Right);
+
+            // Display the table
+            ctable.Write();
+
+            ATM_Screen.PrintMessage("", false);
         }
     }
 }
