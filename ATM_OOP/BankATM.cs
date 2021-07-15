@@ -14,8 +14,9 @@ namespace ATM_OOP
 {
     class BankATM
     {
+        // Class Properties
         public int ATM_Num { get; set; }
-        private Bank parentBank;
+        public Bank ParentBank { get; set; }
 
         // Declare local variables
         private static Customer currentCustomer;
@@ -24,13 +25,6 @@ namespace ATM_OOP
         private static bool verified;
         private static string transTypeStr; // Should be enum?
         private const int LOGIN_LIMIT = 3;
-
-        // Constructor(s)
-        public BankATM(Bank parentBank)
-        {
-            ATM_Num = parentBank.ATM_List.Count + 1;
-            this.parentBank = parentBank;
-        }
 
         // Starting point of ATM execution, from customer's perspective
         // Called from Main method of Tester class
@@ -140,7 +134,7 @@ namespace ATM_OOP
                 //                pinValid = false;
                 tryCustomer = new Customer();
 
-                Console.Write("Please enter your card # (Attempt {0}/3): ", i);
+                Console.Write($"Please enter your card # (Attempt {i}/3): ");
                 cardInput = Console.ReadLine();
 
                 #region
@@ -151,7 +145,7 @@ namespace ATM_OOP
                 */
                 #endregion
 
-                foreach (Customer c in parentBank.CustomerList)
+                foreach (Customer c in ParentBank.CustomerList)
                 {
                     if (c.CardNum.Equals(cardInput))
                     {
@@ -182,7 +176,7 @@ namespace ATM_OOP
                 // Pin verification loop
                 for (j = 1; j <= LOGIN_LIMIT; j++)
                 {
-                    Console.Write("Please enter your pin (Attempt {0}/3): ", j);
+                    Console.Write($"Please enter your pin (Attempt {j}/3): ");
                     pinInput = Utility.ProcessHiddenInput();
 
                     #region
@@ -234,28 +228,24 @@ namespace ATM_OOP
             Console.Clear();
 
             // TO DO: Format correctly -- with CultureInfo object?
-            totalLine = String.Format("Total account balance: {0:C2}", currentCustomer.CalcTotalBal());
-
+            totalLine = $" Total account balance: {currentCustomer.CalcTotalBal():C2}";
             Console.Write(" ");
             for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
                 Console.Write("-");
-            Console.WriteLine();
-            Console.Write("|" + totalLine.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
-                        + "|" + "".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n");
-
-           for (int i = 0; i < currentCustomer.CustAccts.Count; i++)
+            Console.WriteLine(); 
+            Console.Write($"|{totalLine, -ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+            + $"|{"", -ATM_Screen.MENU_BOX_WIDTH_LG}|\n");
+            for (int i = 0; i < currentCustomer.CustAccts.Count; i++)
             {
-                acctLine = " " + currentCustomer.CustAccts[i].AccountName + ": "
-                                + String.Format("{0:C2}", currentCustomer.CustAccts[i].Balance);
+                acctLine = $" {currentCustomer.CustAccts[i].AccountName}: "
+                                + $"{currentCustomer.CustAccts[i].Balance:C2}";
 
-                Console.Write("|" + acctLine.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n");
+                Console.Write($"|{acctLine.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)}|\n");
             }
-
-            Console.Write("|" + "".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+            Console.Write($"|{"", -ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
                         + " ");
             for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
                 Console.Write("-");
-
             ATM_Screen.PrintMessage("", false);
         }
 
@@ -277,8 +267,7 @@ namespace ATM_OOP
 
                 ATM_Screen.ShowAcctsMenu(currentCustomer);
 
-                userChoice = Utility.ValidateIntInput("Select an account for "
-                                                        + transTypeStr.ToLower() + ": ");
+                userChoice = Utility.ValidateIntInput($"Select an account for {transTypeStr.ToLower()}: ");
 
                 if (userChoice <= 0 || userChoice > currentCustomer.CustAccts.Count)
                 {
@@ -291,18 +280,14 @@ namespace ATM_OOP
 
             } while (!acctValid);
 
-            transactionAmt = Utility.ValidateDecInput(String.Format("Account for {0}: {1}\n"
-                                                    + "Please enter amount for {2}: ",
-                                                    transTypeStr.ToLower(),
-                                                    currentCustomer.CustAccts[acctIndex].AccountName,
-                                                    transTypeStr.ToLower()));
+            // TO DO: Account balance cannot surpass 999,999
+            transactionAmt = Utility.ValidateDecInput($"Account for {transTypeStr.ToLower()}: "
+                                                    + $"{currentCustomer.CustAccts[acctIndex].AccountName}\n"
+                                                    + $"Please enter amount for {transTypeStr.ToLower()}: ");
 
-            reviewLine1 = String.Format(" Account balance before |   {0:N2}",
-                                            currentCustomer.CustAccts[acctIndex].Balance);
-            reviewLine2 = String.Format("                        | + {0:N2}",
-                                            transactionAmt);
-            reviewLine3 = String.Format(" Account balance after  |   {0:N2}",
-                                            currentCustomer.CustAccts[acctIndex].Balance+transactionAmt);
+            reviewLine1 = $" {"Account balance before",-23}|{currentCustomer.CustAccts[acctIndex].Balance,13:N2} ";
+            reviewLine2 = $" {"",-23}| + {transactionAmt,10:N2} ";
+            reviewLine3 = $" {"Account balance after",-23}|{currentCustomer.CustAccts[acctIndex].Balance + transactionAmt,13:N2} ";
 
             do
             {
@@ -310,24 +295,26 @@ namespace ATM_OOP
 
                 Console.Clear();
 
-                Console.Write("Account for {0}: {1}\n"
-                                + " ",
-                                transTypeStr.ToLower(),
-                                currentCustomer.CustAccts[acctIndex].AccountName);
+                Console.Write($"Account for {transTypeStr.ToLower()}: "
+                                + $"{currentCustomer.CustAccts[acctIndex].AccountName}\n"
+                                + " ");
 
                 for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
                     Console.Write("-");
                 Console.WriteLine();
-                Console.Write("|" + " Transaction Review".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)  + "|\n"
-                            + "|" + " ".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)                    + "|\n"
-                            + "|" + reviewLine1.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)            + "|\n"
-                            + "|" + reviewLine2.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)            + "|\n"
-                            + "|                        | ____________ |\n"
-                            + "|" + reviewLine3.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)            + "|\n"
-                            + "|" + "".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)                     + "|\n"
-                            + "|" + " 1. Confirm".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)          + "|\n"
-                            + "|" + " 2. Cancel".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)           + "|\n"
-                            + "|" + " ".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)                    + "|\n"
+                Console.Write($"|{" Transaction Review", -ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+                            + $"|{"", -ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+                            //+ $"|{reviewLine1}|\n"
+                            + $"| {"Account balance before",-23}|{currentCustomer.CustAccts[acctIndex].Balance,13:N2} |\n"
+                            //+ $"|{reviewLine2}|\n"
+                            + $"| {"",-23}| + {transactionAmt,10:N2} |\n"
+                            + $"|{"| ____________ ", ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+                            //+ $"|{reviewLine3}|\n"
+                            + $"| {"Account balance after",-23}|{currentCustomer.CustAccts[acctIndex].Balance + transactionAmt,13:N2} |\n"
+                            + $"|{"", -ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+                            + $"|{" 1. Confirm", -ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+                            + $"|{" 2. Cancel", -ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+                            + $"|{"", -ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
                             + " ");
                 for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
                     Console.Write("-");
@@ -376,7 +363,7 @@ namespace ATM_OOP
 
             currentCustomer.CustAccts[acctIndex].Balance += transactionAmt;
 
-            ATM_Screen.PrintMessage(transTypeStr + " successful! Thank you.", false);
+            ATM_Screen.PrintMessage($"{transTypeStr} successful! Thank you.", false);
 
             // Add as a new Transaction object to this Customer's transaction list
             var transaction = new Transaction() { TransDate = DateTime.Now,
@@ -407,8 +394,7 @@ namespace ATM_OOP
 
                 ATM_Screen.ShowAcctsMenu(currentCustomer);
 
-                userChoice = Utility.ValidateIntInput("Select an account for "
-                                                        + transTypeStr.ToLower() + ": ");
+                userChoice = Utility.ValidateIntInput($"Select an account for {transTypeStr.ToLower()}: ");
 
                 if (userChoice <= 0 || userChoice > currentCustomer.CustAccts.Count)
                 {
@@ -425,11 +411,9 @@ namespace ATM_OOP
             {
                 amtValid = false;
 
-                transactionAmt = Utility.ValidateDecInput(String.Format("Account for {0}: {1}\n"
-                                                        + "Please enter amount for {2}: ",
-                                                        transTypeStr.ToLower(),
-                                                        currentCustomer.CustAccts[acctIndex].AccountName,
-                                                        transTypeStr.ToLower()));
+                transactionAmt = Utility.ValidateDecInput($"Account for {transTypeStr.ToLower()}: "
+                                                    + $"{currentCustomer.CustAccts[acctIndex].AccountName}\n"
+                                                    + $"Please enter amount for {transTypeStr.ToLower()}: ");
 
                 // TO DO: amt cannot bring balance below 0
                 if (transactionAmt > currentCustomer.CustAccts[acctIndex].Balance)
@@ -441,11 +425,12 @@ namespace ATM_OOP
 
             } while (!amtValid);
 
-            reviewLine1 = String.Format(" Account balance before : {0:N2}",
-                                            currentCustomer.CustAccts[acctIndex].Balance);
-            reviewLine2 = String.Format("                          - {0:N2}", transactionAmt);
-            reviewLine3 = String.Format(" Account balance after  :   {0:N2}",
-                                            currentCustomer.CustAccts[acctIndex].Balance - transactionAmt);
+            //reviewLine1 = $" Account balance before |   {currentCustomer.CustAccts[acctIndex].Balance:N2}";
+            //reviewLine2 = $"                        | - {transactionAmt:N2}";
+            //reviewLine3 = $" Account balance after  |   {currentCustomer.CustAccts[acctIndex].Balance - transactionAmt:N2}";
+            reviewLine1 = $" {"Account balance before",-23}|{currentCustomer.CustAccts[acctIndex].Balance,13:N2} ";
+            reviewLine2 = $" {"",-23}| - {transactionAmt,10:N2} ";
+            reviewLine3 = $" {"Account balance after",-23}|{currentCustomer.CustAccts[acctIndex].Balance - transactionAmt,13:N2} ";
 
             do
             {
@@ -453,24 +438,26 @@ namespace ATM_OOP
 
                 Console.Clear();
 
-                Console.Write("Account for {0}: {1}\n"
-                + " ",
-                transTypeStr.ToLower(),
-                currentCustomer.CustAccts[acctIndex].AccountName);
+                Console.Write($"Account for {transTypeStr.ToLower()}: "
+                                + $"{currentCustomer.CustAccts[acctIndex].AccountName}\n"
+                                + " ");
 
                 for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
                     Console.Write("-");
                 Console.WriteLine();
-                Console.Write("|" + " Transaction Review".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
-                            + "|" + " ".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
-                            + "|" + reviewLine1.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
-                            + "|" + reviewLine2.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
-                            + "|                          ____________ |\n"
-                            + "|" + reviewLine3.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
-                            + "|" + "".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
-                            + "|" + " 1. Confirm".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
-                            + "|" + " 2. Cancel".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
-                            + "|" + " ".PadRight(ATM_Screen.MENU_BOX_WIDTH_LG) + "|\n"
+                Console.Write($"|{" Transaction Review",-ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+                            + $"|{"",-ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+                            //+ $"|{reviewLine1}|\n"
+                            + $"| {"Account balance before",-23}|{currentCustomer.CustAccts[acctIndex].Balance,13:N2} |\n"
+                            //+ $"|{reviewLine2}|\n"
+                            + $"| {"",-23}| - {transactionAmt,10:N2} |\n"
+                            + $"|{"| ____________ ",ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+                            //+ $"|{reviewLine3}|\n"
+                            + $"| {"Account balance after",-23}|{currentCustomer.CustAccts[acctIndex].Balance - transactionAmt,13:N2} |\n"
+                            + $"|{"",-ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+                            + $"|{" 1. Confirm",-ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+                            + $"|{" 2. Cancel",-ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+                            + $"|{"",-ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
                             + " ");
                 for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
                     Console.Write("-");
@@ -519,7 +506,7 @@ namespace ATM_OOP
 
             currentCustomer.CustAccts[acctIndex].Balance -= transactionAmt;
 
-            ATM_Screen.PrintMessage(transTypeStr + " successful! Thank you.", false);
+            ATM_Screen.PrintMessage($"{transTypeStr} successful! Thank you.", false);
 
             // Add as a new Transaction object to this Customer's transaction list
             var transaction = new Transaction()
@@ -544,10 +531,12 @@ namespace ATM_OOP
                 return;
             }
 
-            var ctable = new ConsoleTable("Type", "Account From", "Account To", "Amount", "Transaction Date");
+            var ctable = new ConsoleTable("Type", "Account From", "Account To",
+                                            "Amount", "Transaction Date");
 
             foreach (var t in currentCustomer.AcctTransactions)
-                ctable.AddRow(t.TransType, t.SourceAcct, t.TargetAcct, String.Format("{0:C2}", t.TransAmount), t.TransDate);
+                ctable.AddRow(t.TransType, $"{t.SourceAcct.ToString("D8")}", $"{t.TargetAcct.ToString("D8")}",
+                                $"{t.TransAmount:C2}", t.TransDate);
 
             // Configure the output table
             ctable.Options.EnableCount = false;

@@ -9,13 +9,23 @@ namespace ATM_OOP
         public List<Customer> CustomerList { get; set; }
         public List<BankATM> ATM_List { get; set; }
 
-        // Build customer base
         public void Initialize()
         {
+            // Build customer base
             // TO DO: integrate with a database of customers
             CustomerList = new List<Customer>
             {
-                new Customer() { FullName = "Olivia Brown",
+                // Customer object allowing for quick testing by coder
+                new Customer { FullName = "ADMIN",
+                                CardNum = "0", Pin = "0",
+                                CustAccts = new List<Account>
+                                {
+                                    new Account() { AccountName = "Checking", Balance = 1000m },
+                                    new Account() { AccountName = "Savings", Balance = 1000m },
+                                    new Account() { AccountName = "Custom1", Balance = 1000m }
+                                }
+                },
+                new Customer { FullName = "Olivia Brown",
                                 CardNum = "12345", Pin = "4321",
                                 CustAccts = new List<Account>
                                 {
@@ -24,7 +34,7 @@ namespace ATM_OOP
                                     new Account() { AccountName = "Custom1", Balance = 1157.27m }
                                 }
                 },
-                new Customer() { FullName = "Liberty Bibberty",
+                new Customer { FullName = "Liberty Bibberty",
                                 CardNum = "55555", Pin = "5555",
                                 CustAccts = new List<Account>
                                 {
@@ -42,7 +52,7 @@ namespace ATM_OOP
 
         public void AddATM()
         {
-            ATM_List.Add(new BankATM(this));
+            ATM_List.Add(new BankATM { ATM_Num = ATM_List.Count + 1, ParentBank = this} );
         }
     }
 }
