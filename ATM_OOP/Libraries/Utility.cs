@@ -72,5 +72,33 @@ namespace ATM_OOP
 
             return value;
         }
+
+        public static decimal ValidateDecInput(string prompt, decimal sum, decimal max)
+        {
+            // Declare local variables
+            decimal value = 0;
+            bool valid = false;
+
+            do
+            {
+                Console.Clear();
+
+                Console.Write(prompt);
+                valid = decimal.TryParse(Console.ReadLine(), out value);
+                if (!valid)
+                    ATM_Screen.PrintMessage(ATM_Screen.InvalidInputStr, true);
+                else if (value < 0)
+                {
+                    ATM_Screen.PrintMessage("Amount cannot be negative", true);
+                    valid = false;
+                }
+                else if (value > max)
+                {
+                    ATM_Screen.PrintMessage("Amount cannot exceed $999,999", true);
+                }
+            } while (!valid);
+
+            return value;
+        }
     }
 }

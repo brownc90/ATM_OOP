@@ -41,8 +41,9 @@ namespace ATM_OOP
                                     new Account() { AccountName = "Checking", Balance = 0m },
                                     new Account() { AccountName = "Savings", Balance = 4500m },
                                     new Account() { AccountName = "Custom1", Balance = 50.95m },
-                                    new Account() { AccountName = "Custom2", Balance = 50m },
-                                    new Account() { AccountName = "Emergency Fund", Balance = 1000m }
+                                    new Account() { AccountName = "Emergency Funds", Balance = 50m },
+                                    new Account() { AccountName = "Emergency Funds+", Balance = 50m },
+                                    new Account() { AccountName = "Emergency Fund by Dave", Balance = 1000m }
                                 }
                 }
             };

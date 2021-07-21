@@ -23,6 +23,7 @@ namespace ATM_OOP
         [Description("Exit")]
         Exit
     }
+    // ***MAY BE OBSOLETE***
     public enum TransType
     {
         deposit,

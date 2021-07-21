@@ -12,10 +12,10 @@ namespace ATM_OOP
         public decimal TransAmount { get; set; }
         // SourceAcct = Account# of account which is currently accessed during transaction
         // Ex: Account from which a fund transfer is sent
-        public int SourceAcct { get; set; }
+        public string SourceAcct { get; set; }
         // TargetAcct = Account# of account which is the destination of the transaction
         // Ex: Account to which a fund transfer is sent
-        public int TargetAcct { get; set; }
+        public string TargetAcct { get; set; }
 
         private static int transCount = 0;
 

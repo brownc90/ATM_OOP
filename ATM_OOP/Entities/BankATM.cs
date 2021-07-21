@@ -20,7 +20,6 @@ namespace ATM_OOP
 
         // Declare local variables
         private static Customer currentCustomer;
-        //        private static Customer tryCustomer;
         private static decimal transactionAmt;
         private static bool verified;
         private static string transTypeStr; // Should be enum?
@@ -36,15 +35,16 @@ namespace ATM_OOP
             {
                 ATM_Screen.ShowMenu1();
 
+                //switch (Utility.ValidateIntInput("What would you like to do? "))
                 switch (Console.ReadLine())
-//                switch (Utility.ValidateIntInput("What would you like to do? "))
                 {
                     // Option 1. Insert Debit Card
                     case "1":
                         verified = false;
 
                         CheckCredentials();
-
+                        // If entered credentials not verified in the CheckCredentials() method,
+                        // loop back to menu 1/login menu
                         if (!verified)
                             continue;
 
@@ -54,8 +54,8 @@ namespace ATM_OOP
                         {
                             ATM_Screen.ShowMenu2();
 
-                            switch (Console.ReadLine())
                             //switch (Utility.ValidateIntInput("What would you like to do? "))
+                            switch (Console.ReadLine())
                             {
                                 // Option 1. View Balance
                                 case "1":
@@ -75,6 +75,7 @@ namespace ATM_OOP
                                     break;
                                 // Option 4. Transfer Funds
                                 case "4":
+                                    // Will use LINQ to validate target acct?
 
                                     break;
                                 // Option 5. View Transaction History
@@ -118,9 +119,7 @@ namespace ATM_OOP
             // Declare local variables
             Customer tryCustomer;
             string cardInput, pinInput;
-            // TO DO: What is difference between below bools, and are they necessary?
             bool cardRecognized;
-            //            bool pinValid;
             int i, j;
 
             Console.Clear();
@@ -129,21 +128,11 @@ namespace ATM_OOP
             // Outer loop: Card #; inner loop: Pin
             for (i = 1; i <= LOGIN_LIMIT; i++)
             {
-                // Next line may be redundant...
                 cardRecognized = false;
-                //                pinValid = false;
                 tryCustomer = new Customer();
 
                 Console.Write($"Please enter your card # (Attempt {i}/3): ");
                 cardInput = Console.ReadLine();
-
-                #region
-                /*
-                                cardInput = Utility.ValidateIntInput("Please enter your card #: ");
-                                if (cardInput == 0)
-                                    continue;
-                */
-                #endregion
 
                 foreach (Customer c in ParentBank.CustomerList)
                 {
@@ -179,17 +168,6 @@ namespace ATM_OOP
                     Console.Write($"Please enter your pin (Attempt {j}/3): ");
                     pinInput = Utility.ProcessHiddenInput();
 
-                    #region
-                    /*
-                                        pinValid = Int32.TryParse(Utility.ProcessHiddenInput(), out pinInput);
-                                        if (!pinValid)
-                                        {
-                                            ATM_Screen.PrintMessage("That is not a valid input", true);
-                                            continue;
-                                        }
-                    */
-                    #endregion
-
                     if (!(tryCustomer.Pin.Equals(pinInput)))
                     {
                         ATM_Screen.PrintMessage("Incorrect pin", true);
@@ -223,29 +201,48 @@ namespace ATM_OOP
 
         public void ViewBalance()
         {
-            string totalLine, acctLine;
+            //string totalLine, acctLine;
 
             Console.Clear();
 
-            // TO DO: Format correctly -- with CultureInfo object?
-            totalLine = $" Total account balance: {currentCustomer.CalcTotalBal():C2}";
-            Console.Write(" ");
-            for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
-                Console.Write("-");
-            Console.WriteLine(); 
-            Console.Write($"|{totalLine, -ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
-            + $"|{"", -ATM_Screen.MENU_BOX_WIDTH_LG}|\n");
-            for (int i = 0; i < currentCustomer.CustAccts.Count; i++)
-            {
-                acctLine = $" {currentCustomer.CustAccts[i].AccountName}: "
-                                + $"{currentCustomer.CustAccts[i].Balance:C2}";
+            Console.WriteLine($" Total account balance: {currentCustomer.CalcTotalBal():C2}");
+            Console.WriteLine();
+            //totalLine = $" Total account balance: {currentCustomer.CalcTotalBal():C2}";
 
-                Console.Write($"|{acctLine.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)}|\n");
-            }
-            Console.Write($"|{"", -ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
-                        + " ");
-            for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
-                Console.Write("-");
+            var ctable = new ConsoleTable("Account Name", "Account#", "Balance");
+
+            foreach (var a in currentCustomer.CustAccts)
+                ctable.AddRow(a.AccountName, a.AccountNum.ToString("D8"), $"{a.Balance:C2}");
+
+            // Configure the output table
+            ctable.Options.EnableCount = false;
+            //ctable.Configure(o => o.NumberAlignment = Alignment.Right);
+
+            // Display the table
+            ctable.Write(Format.Minimal);
+
+            // Previous non-table version of above code
+            #region
+            //Console.Write(" ");
+            //for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
+            //    Console.Write("-");
+            //Console.WriteLine(); 
+            //Console.Write($"|{totalLine, -ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+            //+ $"|{"", -ATM_Screen.MENU_BOX_WIDTH_LG}|\n");
+            //for (int i = 0; i < currentCustomer.CustAccts.Count; i++)
+            //{
+            //    acctLine = $" {currentCustomer.CustAccts[i].AccountName} "
+            //                    + $"({currentCustomer.CustAccts[i].AccountNum.ToString("D8")}): "
+            //                    + $"{currentCustomer.CustAccts[i].Balance:C2}";
+
+            //    Console.Write($"|{acctLine.PadRight(ATM_Screen.MENU_BOX_WIDTH_LG)}|\n");
+            //}
+            //Console.Write($"|{"", -ATM_Screen.MENU_BOX_WIDTH_LG}|\n"
+            //            + " ");
+            //for (int i = 1; i <= ATM_Screen.MENU_BOX_WIDTH_LG; i++)
+            //    Console.Write("-");
+            #endregion
+
             ATM_Screen.PrintMessage("", false);
         }
 
@@ -369,8 +366,8 @@ namespace ATM_OOP
             var transaction = new Transaction() { TransDate = DateTime.Now,
                                                     TransType = TransactionType.Deposit,
                                                     TransAmount = transactionAmt,
-                                                    SourceAcct = currentCustomer.CustAccts[acctIndex].AccountNum,
-                                                    TargetAcct = currentCustomer.CustAccts[acctIndex].AccountNum
+                                                    SourceAcct = "N/A",
+                                                    TargetAcct = currentCustomer.CustAccts[acctIndex].AccountNum.ToString("D8")
             };
 
             currentCustomer.AcctTransactions.Add(transaction);
@@ -514,8 +511,8 @@ namespace ATM_OOP
                 TransDate = DateTime.Now,
                 TransType = TransactionType.Withdrawal,
                 TransAmount = transactionAmt,
-                SourceAcct = currentCustomer.CustAccts[acctIndex].AccountNum,
-                TargetAcct = currentCustomer.CustAccts[acctIndex].AccountNum
+                SourceAcct = currentCustomer.CustAccts[acctIndex].AccountNum.ToString("D8"),
+                TargetAcct = "N/A"
             };
 
             currentCustomer.AcctTransactions.Add(transaction);
@@ -535,7 +532,7 @@ namespace ATM_OOP
                                             "Amount", "Transaction Date");
 
             foreach (var t in currentCustomer.AcctTransactions)
-                ctable.AddRow(t.TransType, $"{t.SourceAcct.ToString("D8")}", $"{t.TargetAcct.ToString("D8")}",
+                ctable.AddRow(t.TransType, t.SourceAcct, t.TargetAcct,
                                 $"{t.TransAmount:C2}", t.TransDate);
 
             // Configure the output table
