@@ -32,7 +32,7 @@ namespace ATM_OOP
 
     static class ATM_Screen
     {
-        // Declare local variables
+        // Declare global variables
         public static string InvalidInputStr = "That is not a valid input";
         public const int MENU_BOX_WIDTH_SM = 30;
         public const int MENU_BOX_WIDTH_LG = 39;
@@ -59,9 +59,13 @@ namespace ATM_OOP
         {
             Console.Clear();
             Console.Write("Thank you for choosing this ATM! Now shutting down");
+            PrintDotAnim(3, 100);
 
-            // TO DO: have dots (only) erase and repeat 3x
-            PrintDotAnim();
+            for (int i=0; i < 3; i++)
+            {
+                PrintDotAnim(speedMS: 100);
+                ClearLastLine();
+            }
         }
 
         // Initial menu displayed to user, to log in or exit
@@ -96,6 +100,7 @@ namespace ATM_OOP
                         + "What would you like to do? ");
         }
 
+        // Menu that displays all Customer's accounts after Deposit or Withdrawal selected
         public static void ShowAcctsMenu(Customer cust)
         {
             // Declare local variables
@@ -123,6 +128,7 @@ namespace ATM_OOP
 
         }
 
+        // Formats and displays warning or error message
         public static void PrintMessage(string msg, bool isError)
         {
             // Declare local variables
@@ -146,15 +152,24 @@ namespace ATM_OOP
             keyInfo = Console.ReadKey(true);
         }
 
-        public static void PrintDotAnim(int numDots = 10)
+        // Prints a loading animation (exclusively visual)
+        public static void PrintDotAnim(int numDots = 10, int speedMS = 250)
         {
-            // TO DO: Don't allow user input to be processed while this method running
             for (int x = 0; x < numDots; x++)
             {
                 Console.Write(".");
-                Thread.Sleep(250);
+                Thread.Sleep(speedMS);
             }
             Console.WriteLine();
+        }
+
+        // Erases a single line in the console, rather than the entire buffer/window
+        // Used in the shut-down screen
+        public static void ClearLastLine()
+        {
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            Console.Write(new string(' ', Console.BufferWidth));
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
         }
 
         // To Do: Transfer Form method (in ATMScreen class)

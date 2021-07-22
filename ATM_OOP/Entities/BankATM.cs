@@ -201,6 +201,7 @@ namespace ATM_OOP
 
         public void ViewBalance()
         {
+            // Declare local variables
             //string totalLine, acctLine;
 
             Console.Clear();
@@ -277,10 +278,10 @@ namespace ATM_OOP
 
             } while (!acctValid);
 
-            // TO DO: Account balance cannot surpass 999,999
             transactionAmt = Utility.ValidateDecInput($"Account for {transTypeStr.ToLower()}: "
                                                     + $"{currentCustomer.CustAccts[acctIndex].AccountName}\n"
-                                                    + $"Please enter amount for {transTypeStr.ToLower()}: ");
+                                                    + $"Please enter amount for {transTypeStr.ToLower()}: ",
+                                                        currentCustomer.CustAccts[acctIndex].Balance);
 
             reviewLine1 = $" {"Account balance before",-23}|{currentCustomer.CustAccts[acctIndex].Balance,13:N2} ";
             reviewLine2 = $" {"",-23}| + {transactionAmt,10:N2} ";
@@ -412,10 +413,10 @@ namespace ATM_OOP
                                                     + $"{currentCustomer.CustAccts[acctIndex].AccountName}\n"
                                                     + $"Please enter amount for {transTypeStr.ToLower()}: ");
 
-                // TO DO: amt cannot bring balance below 0
                 if (transactionAmt > currentCustomer.CustAccts[acctIndex].Balance)
                 {
                     ATM_Screen.PrintMessage("Insufficient funds.", true);
+                    continue;
                 }
 
                 amtValid = true;

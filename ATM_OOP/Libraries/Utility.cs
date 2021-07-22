@@ -6,6 +6,7 @@ namespace ATM_OOP
 {
     class Utility
     {
+        public const decimal MAX_AMOUNT = 999999;
 
         public static string ProcessHiddenInput()
         {
@@ -73,7 +74,7 @@ namespace ATM_OOP
             return value;
         }
 
-        public static decimal ValidateDecInput(string prompt, decimal sum, decimal max)
+        public static decimal ValidateDecInput(string prompt, decimal prevValue)
         {
             // Declare local variables
             decimal value = 0;
@@ -92,9 +93,10 @@ namespace ATM_OOP
                     ATM_Screen.PrintMessage("Amount cannot be negative", true);
                     valid = false;
                 }
-                else if (value > max)
+                else if ((value + prevValue) > MAX_AMOUNT)
                 {
-                    ATM_Screen.PrintMessage("Amount cannot exceed $999,999", true);
+                    ATM_Screen.PrintMessage($"Total balance cannot exceed {MAX_AMOUNT:C0}", true);
+                    valid = false;
                 }
             } while (!valid);
 
